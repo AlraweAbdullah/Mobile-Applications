@@ -13,9 +13,24 @@ import { getFeaturedResturants } from '../api';
 function HomeScreen() {
   let [featuredResturants, setFeaturedResturants] = useState([])
 
+  // Call all feature to filter from it , istead of making query with every litter that the user writes 
+  let [allFeaturedResturants, setAllFeaturedResturants] = useState([])
+
+  const handleSearch = text => {
+    if (text.trim().length == 0) {
+      setFeaturedResturants(allFeaturedResturants)
+    } else {
+      const filteredFeatures = allFeaturedResturants.filter(feature =>
+        feature.name.toLowerCase().startsWith(text.toLowerCase())
+      );
+      setFeaturedResturants(filteredFeatures);
+    }
+  }
   useEffect(() => {
     getFeaturedResturants().then(data => {
       setFeaturedResturants(data)
+      setAllFeaturedResturants(data)
+
     })
   }, [])
   return (
@@ -26,7 +41,7 @@ function HomeScreen() {
       <View className="flex-row items-center space-x-2 px-4 pb-2">
         <View className="flex-row flex-1 items-center p-3 rounded-full border border-gray-300">
           <Icon.Search height="25" width="25" stroke="gray" />
-          <TextInput placeholder="Restaurants" className="ml flex-1" />
+          <TextInput placeholder="Restaurants" className="ml flex-1" onChangeText={handleSearch} />
           <View className="flex-row items-center space-x-1 border-0 border-l-2 pl-2 border-l-gray-300">
             <Icon.MapPin height="20" width="20" stroke="gray" />
             <Text className="text-gray-600">Leuven</Text>
@@ -45,7 +60,7 @@ function HomeScreen() {
         {/* Featured */}
         <View className="mt-5">
           {
-            featuredResturants.map((item, index) => {
+            featuredResturants?.map((item, index) => {
               return <FeaturedRow
                 key={index}
                 title={item.name}
